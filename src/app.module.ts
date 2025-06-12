@@ -9,10 +9,11 @@ import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { SalesModule } from './sales/sales.module';
 import { UsersModule } from './users/users.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
-    JwtModule.register({}), MongooseModule.forRoot('mongodb+srv://javah1223:javah1223@cluster0.lwqtr.mongodb.net/store'), ProductModule, UsersModule, AuthModule, CategoryModule, SalesModule],
+    JwtModule.register({}), MongooseModule.forRoot('mongodb+srv://javah1223:javah1223@cluster0.lwqtr.mongodb.net/store'), ProductModule, UsersModule, AuthModule, CategoryModule, SalesModule, CommentsModule],
   controllers: [AppController],
   providers: [AppService],
 })

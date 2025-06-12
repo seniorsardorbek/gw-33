@@ -10,31 +10,28 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { generateFiveDigitCode } from 'src/common/generateCode';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>, private jwtService: JwtService
-    , private readonly mailService: MailerService,
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>, private jwtService: JwtService,
+    private readonly mailService: MailerService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) { }
 
 
-
   async register(registerAuthDto: RegisterAuthDto) {
-    console.log(registerAuthDto)
     const code = generateFiveDigitCode()
     let defaultUser: any = null
     const hash = await bcryptjs.hash(registerAuthDto?.password, 12)
 
-
     if (registerAuthDto?.email) {
-
       const exist = await this.userModel.findOne({ email: registerAuthDto.email })
-      console.log(exist);
+
       if (exist && exist.verified) {
         throw new BadRequestException("Email oldin foydalanilgan")
       }
-
 
       if (!exist) {
         const user = await this.userModel.create({ ...registerAuthDto, password: hash })
@@ -216,21 +213,22 @@ text-decoration: none
 </td></tr><tr><td><div class="t40" style="mso-line-height-rule:exactly;mso-line-height-alt:70px;line-height:70px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr></table></td></tr></table></div><div class="gmail-fix" style="display: none; white-space: nowrap; font: 15px courier; line-height: 0;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div></body>
 </html>`
         });
-        console.log(res);
       } catch (error) {
         console.log(error);
       }
+
       await this.cacheManager.set(String(defaultUser._id), { code, ...defaultUser }, 60000);
+
     }
 
     return defaultUser
 
   }
+
+
   async verify(body: any) {
-    console.log(body);
 
     const value: any = await this.cacheManager.get(String(body._id));
-    console.log(body?.code, value?.code);
 
     if (body?.code == value?.code) {
       await this.userModel.findByIdAndUpdate(body._id, { verified: true })
@@ -242,26 +240,32 @@ text-decoration: none
   }
 
 
-
-
-
-  async login(loginDto: LoginDto) {
+  async login(res: Response, loginDto: LoginDto) {
     const user = await this.userModel.findOne({ phonenumber: loginDto.phonenumber, verified: true });
+
     if (!user) {
       return { message: 'Foydalanuvchi topilmad' };
     }
-    console.log(user.password, loginDto.password);
+
     const isMatch = await bcryptjs.compare(loginDto.password, user.password);
+
     if (!isMatch) {
       return { message: 'Parol noto‘g‘ri!' };
     }
 
     const payload = { id: user._id, role: user?.role }
+
     const token = this.jwtService.sign(payload, { secret: "secret" })
-    return {
-      message: 'Tizimga muvaffaqiyatli kirdingiz!',
-      user, token
-    };
+
+    const expirationDate = new Date(Date.now() + 60 * 1000); // 1 minute from now
+
+    res.cookie('token', token, { httpOnly: true, secure: true, expires: expirationDate })
+    res.json(
+      {
+        message: 'Tizimga muvaffaqiyatli kirdingiz!',
+        user, token
+      }
+    )
   }
 
 
