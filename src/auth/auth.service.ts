@@ -257,7 +257,7 @@ text-decoration: none
 
     const token = this.jwtService.sign(payload, { secret: "secret" })
 
-    const expirationDate = new Date(Date.now() + 60 * 1000); // 1 minute from now
+    const expirationDate = new Date(Date.now() + 60 * 60000); // 60 minute from now
 
     res.cookie('token', token, { httpOnly: true, secure: true, expires: expirationDate })
     res.json(
