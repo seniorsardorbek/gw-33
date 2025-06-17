@@ -8,10 +8,11 @@ import { Comment, CommentDocument } from './entities/comment.entity';
 export class CommentService {
   constructor(
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
-  ) {}
+  ) { }
 
-  async create(createCommentDto: CreateCommentDto): Promise<Comment> {
-    const newComment = new this.commentModel(createCommentDto);
+  async create(req: any, createCommentDto: CreateCommentDto): Promise<Comment> {
+    console.log(req.user);
+    const newComment = new this.commentModel({ ...createCommentDto, user_id: req.user.id });
     return newComment.save();
   }
 

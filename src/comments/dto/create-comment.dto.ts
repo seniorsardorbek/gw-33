@@ -1,9 +1,7 @@
 import { IsString, IsNotEmpty, IsNumber, Min, Max } from 'class-validator';
 
 export class CreateCommentDto {
-  @IsString()
-  @IsNotEmpty()
-  user_id: string;
+
 
   @IsString()
   @IsNotEmpty()

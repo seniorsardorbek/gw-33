@@ -1,14 +1,20 @@
-import { Controller, Post, Get, Body, Param } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Req, UseGuards } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentService } from './comments.service';
+import { Roles } from 'src/auth/roles.decorator';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('comments')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+  constructor(private readonly commentService: CommentService) { }
 
+
+
+  @UseGuards(AuthGuard)
   @Post()
-  async create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentService.create(createCommentDto);
+  async create(@Req() req: any, @Body() createCommentDto: CreateCommentDto) {
+    return this.commentService.create(req, createCommentDto);
+
   }
 
   @Get(':productId')
