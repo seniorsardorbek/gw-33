@@ -97,29 +97,72 @@ export class AuthService {
 
 
   async login(res: Response, loginDto: LoginDto) {
-    const user = await this.userModel.findOne({ phonenumber: loginDto.phonenumber, verified: true });
-    if (!user) {
-      return { message: 'Foydalanuvchi topilmadi' };
+    if (!loginDto.phonenumber && !loginDto.email) {
+      throw new BadRequestException("Telefon raqam yoki email kiritilishi shart!")
     }
-    const isMatch = await bcryptjs.compare(loginDto.password, user.password);
-
-    if (!isMatch) {
-      return { message: 'Parol noto‘g‘ri!' };
+    if (!loginDto.password) {
+      throw new BadRequestException("Parol kiritilishi shart!")
     }
 
-    const payload = { id: user._id, role: user?.role }
+    if (loginDto.phonenumber && loginDto.email) {
+      throw new BadRequestException("Telefon raqam yoki email kiritilishi shart!")
+    }
+    if (loginDto.phonenumber) {
 
-    const token = this.jwtService.sign(payload, { secret: "secret" })
 
-    const expirationDate = new Date(Date.now() + 60 * 60000); // 60 minute from now
-
-    res.cookie('token', token, { httpOnly: true, secure: true, expires: expirationDate })
-    res.json(
-      {
-        message: 'Tizimga muvaffaqiyatli kirdingiz!',
-        user, token
+      const user = await this.userModel.findOne({ phonenumber: loginDto.phonenumber, verified: true });
+      if (!user) {
+        return { message: 'Foydalanuvchi topilmadi' };
       }
-    )
+      const isMatch = await bcryptjs.compare(loginDto.password, user.password);
+
+      if (!isMatch) {
+        return { message: 'Parol noto‘g‘ri!' };
+      }
+      const payload = { id: user._id, role: user?.role }
+
+      const token = this.jwtService.sign(payload, { secret: "secret" })
+
+      const expirationDate = new Date(Date.now() + 60 * 60000); // 60 minute from now
+
+      res.cookie('token', token, { httpOnly: true, secure: true, expires: expirationDate })
+      res.json(
+        {
+          message: 'Tizimga muvaffaqiyatli kirdingiz!',
+          user, token
+        }
+      )
+    }
+    if (loginDto.email) {
+
+      console.log(loginDto);
+      const user = await this.userModel.findOne({ email: loginDto.email, verified: true });
+      console.log(user);
+      if (!user) {
+        throw new BadRequestException("FOydalanuvchi topilmadi!")
+      }
+      console.log("email");
+      const isMatch = await bcryptjs.compare(loginDto.password, user.password);
+
+      if (!isMatch) {
+        throw new BadRequestException("Parol notogri!")
+      }
+      const payload = { id: user._id, role: user?.role }
+
+      const token = this.jwtService.sign(payload, { secret: "secret" })
+
+      const expirationDate = new Date(Date.now() + 60 * 60000); // 60 minute from now
+
+      res.cookie('token', token, { httpOnly: true, secure: true, expires: expirationDate })
+      res.json(
+        {
+          message: 'Tizimga muvaffaqiyatli kirdingiz!',
+          user, token
+        }
+      )
+    }
+
+
   }
 
 

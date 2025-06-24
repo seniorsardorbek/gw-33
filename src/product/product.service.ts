@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Req } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,13 +8,26 @@ import { Model } from 'mongoose';
 @Injectable()
 export class ProductService {
   constructor(@InjectModel(Product.name) private ProductModel: Model<Product>) { }
-  async create(createProductDto: CreateProductDto) {
-    const createdCat = new this.ProductModel(createProductDto);
+  async create(createProductDto: CreateProductDto, files: Express.Multer.File[]) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No images uploaded');
+    }
+
+    // Map the uploaded files to their paths
+    const images = files?.map(file => file.path);
+    // rest 
+    const createdCat = new this.ProductModel({ ...createProductDto, images });
     return await createdCat.save();
   }
 
-  async findAll() {
-    return await this.ProductModel.find().populate('category').exec();
+  async findAll(req: any, { category }: { category?: string }) {
+
+    const query: any = {};
+    if (category) {
+      query.category = category;
+    }
+
+    return await this.ProductModel.find(query).populate('category').exec();
   }
 
   async findOne(id: string) {

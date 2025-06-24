@@ -15,6 +15,10 @@ export class Product {
   @Prop({ required: true, })
   name: string;
 
+
+  @Prop({ type: [String], required: true, default: [] })
+  images: string[];
+
   @Prop({ type: "number", required: true })
   price: number;
 
@@ -23,8 +27,22 @@ export class Product {
   quantity: number
 
 
-  @Prop()
-  color: string
+  @Prop({ type: "string", required: true, default: "N/A" })
+  description: string;
+
+  @Prop({ type: "string", required: false, default: "N/A" })
+  brand: string;
+
+  // create sizes 
+  @Prop({ type: [String], required: false, default: [] })
+  sizes: string[];
+
+  //create stars
+  @Prop({ type: "number", required: false, default: 4.4 })
+  stars: number;
+
+  @Prop({ type: [String], required: false, default: [] })
+  colors: string[];
 
   @Prop({ ref: "Category", type: SchemaTypes.ObjectId, required: true })
   category: string
