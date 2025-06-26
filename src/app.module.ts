@@ -21,7 +21,7 @@ import { join } from 'path';
       serveRoot: '/uploads', // Optional: serves files at /uploads/* instead of /*
     }),
 
-    JwtModule.register({}), MongooseModule.forRoot('mongodb+srv://javah1223:javah1223@cluster0.lwqtr.mongodb.net/store'), ProductModule, UsersModule, AuthModule, CategoryModule, SalesModule, CommentsModule],
+    JwtModule.register({}), MongooseModule.forRoot('mongodb+srv://javah1223:javah1223@cluster0.lwqtr.mongodb.net/store2'), ProductModule, UsersModule, AuthModule, CategoryModule, SalesModule, CommentsModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -27,6 +27,7 @@ export class AuthService {
     let defaultUser: any = null
     const hash = await bcryptjs.hash(registerAuthDto?.password, 12)
 
+    console.log(registerAuthDto);
     if (registerAuthDto?.phonenumber) {
       const exist = await this.userModel.findOne({ phonenumber: registerAuthDto.phonenumber })
 
@@ -62,8 +63,9 @@ export class AuthService {
       }
 
 
-      defaultUser = exist
 
+      defaultUser = exist
+      console.log(defaultUser);
       const message = `Sizning emailingizni taqdiqlash kodingiz - ${code}`;
 
       try {
@@ -93,6 +95,13 @@ export class AuthService {
 
     return { success: false, msg: "" }
 
+  }
+  async me(req: any) {
+    const user = await this.userModel.findById(req.user.id).select("-password -__v");
+    if (!user) {
+      throw new BadRequestException("Foydalanuvchi topilmadi!")
+    }
+    return user
   }
 
 

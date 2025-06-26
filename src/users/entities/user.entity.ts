@@ -29,11 +29,11 @@ export class User {
   gender: number;
 
 
-  @Prop({ type: "string", required: false, unique: true })
+  @Prop({ type: "string", required: false })
   phonenumber: string;
 
 
-  @Prop({ type: "string", required: false, unique: true })
+  @Prop({ type: "string", required: false })
   email: string;
 
 
